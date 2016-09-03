@@ -1,5 +1,5 @@
 import {matrix, types} from './Config';
-import {obstacleAhead, pathAhead, moveInDirection} from './ControlRoom';
+import {moveToEast, fireMissile} from './ControlRoom';
 
 export function isPositionAvailable(matrix, position) {
     return typeof matrix[position.y] !== 'undefined'
@@ -7,117 +7,19 @@ export function isPositionAvailable(matrix, position) {
         && types[matrix[position.y][position.x]] !== 'obstacle';
 }
 
-export function isPositionInFrontAvailable(matrix, position, direction) {
-    switch (direction) {
-        case 'east':
-            return isPositionAvailable(matrix, {
-                x: position.x + 1,
-                y: position.y
-            });
-        case 'south':
-            return isPositionAvailable(matrix, {
-                x: position.x,
-                y: position.y + 1
-            });
-        case 'west':
-            return isPositionAvailable(matrix, {
-                x: position.x - 1,
-                y: position.y
-            });
-        case 'north':
-            return isPositionAvailable(matrix, {
-                x: position.x,
-                y: position.y - 1
-            });
+export function isWallWithinThreeStepsToEast(matrix, position) {
+    for (let i = position.x + 1; i < position.x + 3; i++) {
+        if (matrix[0][i]) {
+            return true;
+        }
     }
-}
-
-export function isPositionToLeftOfTravelAvailable(matrix, position, direction) {
-    switch (direction) {
-        case 'east':
-            return isPositionAvailable(matrix, {
-                x: position.x,
-                y: position.y - 1
-            });
-        case 'south':
-            return isPositionAvailable(matrix, {
-                x: position.x + 1,
-                y: position.y
-            });
-        case 'west':
-            return isPositionAvailable(matrix, {
-                x: position.x,
-                y: position.y + 1
-            });
-        case 'north':
-            return isPositionAvailable(matrix, {
-                x: position.x - 1,
-                y: position.y
-            });
-    }
-}
-
-export function isPositionToRightOfTravelAvailable(matrix, position, direction) {
-    switch (direction) {
-        case 'east':
-            return isPositionAvailable(matrix, {
-                x: position.x,
-                y: position.y + 1
-            });
-        case 'south':
-            return isPositionAvailable(matrix, {
-                x: position.x - 1,
-                y: position.y
-            });
-        case 'west':
-            return isPositionAvailable(matrix, {
-                x: position.x,
-                y: position.y - 1
-            });
-        case 'north':
-            return isPositionAvailable(matrix, {
-                x: position.x + 1,
-                y: position.y
-            });
-    }
-}
-
-function getDirectionToLeft(direction) {
-    switch (direction) {
-        case 'east':
-            return 'north';
-        case 'south':
-            return 'east';
-        case 'west':
-            return 'south';
-        case 'north':
-            return 'west';
-    }
-}
-
-function getDirectionToRight(direction) {
-    switch (direction) {
-        case 'east':
-            return 'south';
-        case 'south':
-            return 'west';
-        case 'west':
-            return 'north';
-        case 'north':
-            return 'east';
-    }
+    return false;
 }
 
 export default function (robot) {
-    // return isPositionInFrontAvailable(matrix, robot.position, robot.direction) ?
-    //     pathAhead(robot.position, robot.direction) :
-    //     obstacleAhead(robot.position, robot.direction);
-
-    if (isPositionToLeftOfTravelAvailable(matrix, robot.position, robot.direction)) {
-        return moveInDirection(robot.position, getDirectionToLeft(robot.direction));
-    } else if (isPositionInFrontAvailable(matrix, robot.position, robot.direction)) {
-        return moveInDirection(robot.position, robot.direction);
-    } else if (isPositionToRightOfTravelAvailable(matrix, robot.position, robot.direction)) {
-        return moveInDirection(robot.position, getDirectionToRight(robot.direction));
+    if (isWallWithinThreeStepsToEast(matrix, robot.position)) {
+        return fireMissile(robot.position);
+    } else {
+        return moveToEast(robot.position);
     }
 }

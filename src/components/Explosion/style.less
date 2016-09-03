@@ -1,0 +1,13 @@
+.explosion {
+    position: absolute;
+    display: block;
+    background: url('./img/explosion.png') no-repeat 50% 50%;
+    background-size: contain;
+    visibility: hidden;
+    &--exploding{
+        visibility: visible;
+        background-size: contain;
+        transition: transform 1s ease-out;
+        transform: scale(2.1);
+    }
+}
